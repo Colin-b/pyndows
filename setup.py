@@ -6,7 +6,7 @@ with open(os.path.join(this_dir, "README.md"), "r") as f:
     long_description = f.read()
 
 setup(
-    name="pycommon_server",
+    name="pyndows",
     version=open("pyndows/version.py").readlines()[-1].split()[-1].strip("\"'"),
     description="Accessing Windows from Linux",
     long_description=long_description,
