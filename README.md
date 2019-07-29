@@ -1,8 +1,10 @@
 <h2 align="center">Accessing Windows from Linux</h2>
 
 <p align="center">
-<a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master'></a>
+<a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/cobertura/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCoverage'></a>
+<a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/lastSuccessfulBuild/testReport/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCount'></a>
 </p>
 
 ## Retrieve a file (from Windows to Linux)
@@ -82,4 +84,11 @@ file_content = pyndows.SMBConnectionMock.stored_files[("shared_folder_name", "/f
 In the teardown method, it is expected that you call reset to ensure the state of the mock between test cases.
 ```python
 pyndows.SMBConnectionMock.reset()
+```
+
+## How to install
+1. [python 3.7+](https://www.python.org/downloads/) must be installed
+2. Use pip to install module:
+```sh
+python -m pip install pyndows -i https://all-team-remote:tBa%40W%29tvB%5E%3C%3B2Jm3@artifactory.tools.digital.engie.com/artifactory/api/pypi/all-team-pypi-prod/simple
 ```
