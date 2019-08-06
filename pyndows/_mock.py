@@ -3,6 +3,8 @@ import re
 from typing import List
 from collections import namedtuple
 
+import pytest
+
 from smb.smb_structs import OperationFailure
 from smb.base import SharedFile
 
@@ -105,11 +107,15 @@ class SMBConnectionMock:
         return echo_response
 
 
-def mock():
+@pytest.fixture
+def samba_mock(monkeypatch):
     import smb.SMBConnection
 
-    smb.SMBConnection.SMBConnection = SMBConnectionMock
+    monkeypatch.setattr(smb.SMBConnection, "SMBConnection", SMBConnectionMock)
     import pyndows
 
-    pyndows._windows.SMBConnection = pyndows.SMBConnectionMock
-    pyndows.SMBConnection = pyndows.SMBConnectionMock
+    monkeypatch.setattr(pyndows._windows, "SMBConnection", SMBConnectionMock)
+
+    yield SMBConnectionMock
+
+    SMBConnectionMock.reset()
