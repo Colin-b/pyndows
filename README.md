@@ -55,12 +55,7 @@ with pyndows.connect(...) as machine:
 
 Thanks to the embedded Samba connection mock don't need a valid connection to a distant machine to be able to write test cases.
 
-Before declaring your test cases, mock function needs to be called to activate the mock.
-```python
-import pyndows
-
-pyndows.mock()
-```
+pytest fixture samba_mock can be used.
 
 You can simulate every Samba connection behavior such as:
 * Exceptions being thrown
@@ -71,19 +66,18 @@ And of course, the following usual operations:
 
 ### Simulate a file that can be retrieved
 ```python
-pyndows.SMBConnectionMock.files_to_retrieve[("shared_folder_name", "/folder/file_to_retrieve")] = "File content of path to a file"
+from pyndows import samba_mock
+
+def test_file_retrieval(samba_mock):
+    samba_mock.files_to_retrieve[("shared_folder_name", "/folder/file_to_retrieve")] = "File content of path to a file"
 ```
 
 ### Ensure the content of a file that was moved or renamed
 ```python
-file_content = pyndows.SMBConnectionMock.stored_files[("shared_folder_name", "/folder/file_that_was_stored")]
-```
+from pyndows import samba_mock
 
-### Ensure that every expected operation was performed
-
-In the teardown method, it is expected that you call reset to ensure the state of the mock between test cases.
-```python
-pyndows.SMBConnectionMock.reset()
+def test_file_retrieval(samba_mock):
+    file_content = samba_mock.stored_files[("shared_folder_name", "/folder/file_that_was_stored")]
 ```
 
 ## How to install

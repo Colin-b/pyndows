@@ -12,11 +12,13 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["test"]),
-    install_requires=[
-        "pysmb==1.1.27",
-        # Used to ensure Black code style is checked on pre-commit
-        "pre-commit==1.16.1",
-    ],
+    install_requires=["pysmb==1.1.27"],
+    extras_require={
+        "testing": [
+            # Used to manage testing
+            "pytest==5.0.1"
+        ]
+    },
     python_requires=">=3.6",
     project_urls={
         "Changelog": "https://github.tools.digital.engie.com/GEM-Py/pyndows/blob/master/CHANGELOG.md",
