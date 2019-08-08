@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2019-08-08
+### Changed
+- Mocks are now available via mock submodule.
+
+### Fixed
+- Avoid requiring pytest even if not listed in dependencies
+
 ## [1.1.0] - 2019-08-06
 ### Changed
 - Switch to pytest.
@@ -18,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.tools.digital.engie.com/GEM-Py/pyndows/compare/v1.1.0...HEAD
+[Unreleased]: https://github.tools.digital.engie.com/GEM-Py/pyndows/compare/v2.0.0...HEAD
+[2.0.0]: https://github.tools.digital.engie.com/GEM-Py/pyndows/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.tools.digital.engie.com/GEM-Py/pyndows/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.tools.digital.engie.com/GEM-Py/pyndows/releases/tag/v1.0.1

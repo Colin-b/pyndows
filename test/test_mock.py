@@ -6,13 +6,13 @@ import gzip
 import pytest
 
 import pyndows
-from pyndows import samba_mock
+from pyndows.mock import samba_mock
 
 
 def test_remaining_files_to_retrieve_when_reset():
-    pyndows.SMBConnectionMock.files_to_retrieve["test"] = "Test"
+    pyndows.mock.SMBConnectionMock.files_to_retrieve["test"] = "Test"
     with pytest.raises(Exception) as exception_info:
-        pyndows.SMBConnectionMock.reset()
+        pyndows.mock.SMBConnectionMock.reset()
     assert (
         str(exception_info.value)
         == "Expected files were not retrieved: {'test': 'Test'}"
@@ -20,9 +20,9 @@ def test_remaining_files_to_retrieve_when_reset():
 
 
 def test_remaining_echo_responses_when_reset():
-    pyndows.SMBConnectionMock.echo_responses["test"] = "Test"
+    pyndows.mock.SMBConnectionMock.echo_responses["test"] = "Test"
     with pytest.raises(Exception) as exception_info:
-        pyndows.SMBConnectionMock.reset()
+        pyndows.mock.SMBConnectionMock.reset()
     assert str(exception_info.value) == "Echo were not requested: {'test': 'Test'}"
 
 
@@ -49,9 +49,7 @@ def test_non_text_file_can_be_stored(samba_mock):
         )
 
         assert (
-            gzip.decompress(
-                pyndows.SMBConnectionMock.stored_files[("TestShare", "TestFilePath")]
-            )
+            gzip.decompress(samba_mock.stored_files[("TestShare", "TestFilePath")])
             == b"Test Content Move"
         )
 
@@ -63,9 +61,9 @@ def test_file_retrieval_using_path(samba_mock):
     with tempfile.TemporaryDirectory() as temp_dir:
         with gzip.open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
             distant_file.write(b"Test Content")
-        pyndows.SMBConnectionMock.files_to_retrieve[
-            ("TestShare", "TestFilePath")
-        ] = os.path.join(temp_dir, "local_file")
+        samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = os.path.join(
+            temp_dir, "local_file"
+        )
 
         pyndows.get(
             connection,

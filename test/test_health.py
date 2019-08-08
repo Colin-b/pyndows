@@ -2,7 +2,7 @@ import os
 import os.path
 
 import pyndows
-from pyndows import samba_mock
+from pyndows.mock import samba_mock
 
 
 class DateTimeMock:

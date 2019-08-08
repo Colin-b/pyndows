@@ -5,7 +5,7 @@ import tempfile
 import pytest
 
 import pyndows
-from pyndows import samba_mock
+from pyndows.mock import samba_mock
 
 
 def test_successful_connection(samba_mock):

@@ -1,9 +1,10 @@
 <h2 align="center">Accessing Windows from Linux</h2>
 
 <p align="center">
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href='https://github.tools.digital.engie.com/GEM-Py/pyndows/releases/latest'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=version'></a>
 <a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master'></a>
 <a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/cobertura/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCoverage'></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/lastSuccessfulBuild/testReport/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCount'></a>
 </p>
 
@@ -66,7 +67,7 @@ And of course, the following usual operations:
 
 ### Simulate a file that can be retrieved
 ```python
-from pyndows import samba_mock
+from pyndows.mock import samba_mock
 
 def test_file_retrieval(samba_mock):
     samba_mock.files_to_retrieve[("shared_folder_name", "/folder/file_to_retrieve")] = "File content of path to a file"
@@ -74,7 +75,7 @@ def test_file_retrieval(samba_mock):
 
 ### Ensure the content of a file that was moved or renamed
 ```python
-from pyndows import samba_mock
+from pyndows.mock import samba_mock
 
 def test_file_retrieval(samba_mock):
     file_content = samba_mock.stored_files[("shared_folder_name", "/folder/file_that_was_stored")]
