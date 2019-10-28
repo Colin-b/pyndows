@@ -5,10 +5,10 @@ import tempfile
 import pytest
 
 import pyndows
-from pyndows.mock import samba_mock
+from pyndows.testing import samba_mock, SMBConnectionMock
 
 
-def test_successful_connection(samba_mock):
+def test_successful_connection(samba_mock: SMBConnectionMock):
     assert (
         pyndows.connect(
             "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
@@ -17,7 +17,7 @@ def test_successful_connection(samba_mock):
     )
 
 
-def test_connection_failure(samba_mock):
+def test_connection_failure(samba_mock: SMBConnectionMock):
     samba_mock.should_connect = False
     with pytest.raises(Exception) as exception_info:
         pyndows.connect(
@@ -25,11 +25,11 @@ def test_connection_failure(samba_mock):
         )
     assert (
         str(exception_info.value)
-        == "Impossible to connect to TestComputer (127.0.0.1:80), check connectivity or TestDomain\TestUser rights."
+        == r"Impossible to connect to TestComputer (127.0.0.1:80), check connectivity or TestDomain\TestUser rights."
     )
 
 
-def test_connection_timeout(samba_mock):
+def test_connection_timeout(samba_mock: SMBConnectionMock):
     samba_mock.should_connect = TimeoutError()
     with pytest.raises(Exception) as exception_info:
         pyndows.connect(
@@ -37,11 +37,11 @@ def test_connection_timeout(samba_mock):
         )
     assert (
         str(exception_info.value)
-        == "Impossible to connect to TestComputer (127.0.0.1:80), check connectivity or TestDomain\TestUser rights."
+        == r"Impossible to connect to TestComputer (127.0.0.1:80), check connectivity or TestDomain\TestUser rights."
     )
 
 
-def test_file_retrieval(samba_mock):
+def test_file_retrieval(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -58,7 +58,7 @@ def test_file_retrieval(samba_mock):
             assert local_file.read() == "Test Content"
 
 
-def test_operation_failure_during_file_retrieval(samba_mock):
+def test_operation_failure_during_file_retrieval(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -76,7 +76,7 @@ def test_operation_failure_during_file_retrieval(samba_mock):
         )
 
 
-def test_file_move(samba_mock):
+def test_file_move(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -97,7 +97,7 @@ def test_file_move(samba_mock):
         )
 
 
-def test_storeFile_operation_failure_during_file_move(samba_mock):
+def test_store_file_operation_failure_during_file_move(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -120,7 +120,7 @@ def test_storeFile_operation_failure_during_file_move(samba_mock):
         )
 
 
-def test_rename_operation_failure_during_file_move(samba_mock):
+def test_rename_operation_failure_during_file_move(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -143,7 +143,7 @@ def test_rename_operation_failure_during_file_move(samba_mock):
         )
 
 
-def test_file_rename(samba_mock):
+def test_file_rename(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -156,7 +156,7 @@ def test_file_rename(samba_mock):
     assert samba_mock.stored_files[("TestShare/", "file_new_name")] == "Test Rename"
 
 
-def test_rename_operation_failure_during_file_rename(samba_mock):
+def test_rename_operation_failure_during_file_rename(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -173,7 +173,7 @@ def test_rename_operation_failure_during_file_rename(samba_mock):
     )
 
 
-def test_file_rename_file_does_not_exist(samba_mock):
+def test_file_rename_file_does_not_exist(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -187,7 +187,7 @@ def test_file_rename_file_does_not_exist(samba_mock):
     )
 
 
-def test_get_file_desc_file_exists(samba_mock):
+def test_get_file_desc_file_exists(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -199,7 +199,7 @@ def test_get_file_desc_file_exists(samba_mock):
     assert founded_file.filename == "file_to_find"
 
 
-def test_get_file_desc_file_does_not_exist(samba_mock):
+def test_get_file_desc_file_does_not_exist(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )

@@ -145,14 +145,14 @@ def get_file_desc(
         return
 
 
-def health_details(computer_name: str, connection: SMBConnection) -> (str, dict):
+def check(computer_name: str, connection: SMBConnection) -> (str, dict):
     """
-    Return Health details for a Samba connection.
+    Return Health check for a Samba connection.
 
     :param computer_name: Remote computer name.
     :param connection: Samba connection.
-    :return: A tuple with a string providing the status (pass, warn, fail) and the details.
-    Details are based on https://inadarei.github.io/rfc-healthcheck/
+    :return: A tuple with a string providing the status (pass, warn, fail) and the checks.
+    Checks are based on https://inadarei.github.io/rfc-healthcheck/
     """
     try:
         response = connection.echo(b"")

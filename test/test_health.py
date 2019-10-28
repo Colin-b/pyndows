@@ -2,7 +2,7 @@ import os
 import os.path
 
 import pyndows
-from pyndows.mock import samba_mock
+from pyndows.testing import samba_mock, SMBConnectionMock
 
 
 class DateTimeMock:
@@ -16,13 +16,13 @@ class DateTimeMock:
         return UTCDateTimeMock
 
 
-def test_pass_health_check(samba_mock, monkeypatch):
+def test_pass_health_check(samba_mock: SMBConnectionMock, monkeypatch):
     monkeypatch.setattr(pyndows._windows, "datetime", DateTimeMock)
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
     samba_mock.echo_responses[b""] = b""
-    assert pyndows.health_details("test", connection) == (
+    assert pyndows.check("test", connection) == (
         "pass",
         {
             "test:echo": {
@@ -35,12 +35,12 @@ def test_pass_health_check(samba_mock, monkeypatch):
     )
 
 
-def test_fail_health_check(samba_mock, monkeypatch):
+def test_fail_health_check(samba_mock: SMBConnectionMock, monkeypatch):
     monkeypatch.setattr(pyndows._windows, "datetime", DateTimeMock)
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    assert pyndows.health_details("test", connection) == (
+    assert pyndows.check("test", connection) == (
         "fail",
         {
             "test:echo": {

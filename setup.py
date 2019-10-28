@@ -12,17 +12,17 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["test"]),
-    install_requires=["pysmb==1.1.27"],
+    install_requires=["pysmb==1.*"],
     extras_require={
         "testing": [
             # Used to manage testing
-            "pytest==5.0.1"
+            "pytest==5.*"
         ]
     },
     python_requires=">=3.6",
     project_urls={
-        "Changelog": "https://github.tools.digital.engie.com/GEM-Py/pyndows/blob/master/CHANGELOG.md",
-        "Issues": "https://github.tools.digital.engie.com/GEM-Py/pyndows/issues",
+        "Changelog": "https://github.tools.digital.engie.com/gempy/pyndows/blob/master/CHANGELOG.md",
+        "Issues": "https://github.tools.digital.engie.com/gempy/pyndows/issues",
     },
     license="MIT",
     classifiers=[
@@ -34,6 +34,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Software Development :: Build Tools",
     ],
     keywords=["windows", "samba", "linux", "remote"],

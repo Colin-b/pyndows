@@ -1,11 +1,11 @@
 <h2 align="center">Accessing Windows from Linux</h2>
 
 <p align="center">
-<a href='https://github.tools.digital.engie.com/GEM-Py/pyndows/releases/latest'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=version'></a>
-<a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master'></a>
-<a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/cobertura/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCoverage'></a>
+<a href='https://github.tools.digital.engie.com/gempy/pyndows/releases/latest'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=version'></a>
+<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master'></a>
+<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/cobertura/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=testCoverage'></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href='https://pse.tools.digital.engie.com/drm-all.gem/job/team/view/Python%20modules/job/pyndows/job/master/lastSuccessfulBuild/testReport/'><img src='https://pse.tools.digital.engie.com/drm-all.gem/buildStatus/icon?job=team/pyndows/master&config=testCount'></a>
+<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/lastSuccessfulBuild/testReport/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=testCount'></a>
 </p>
 
 ## Retrieve a file (from Windows to Linux)
@@ -49,7 +49,7 @@ with pyndows.connect(...) as machine:
 import pyndows
 
 with pyndows.connect(...) as machine:
-    details = pyndows.health_details("connection identifier", machine)
+    details = pyndows.check("connection identifier", machine)
 ```
 
 ## Embedded mock
@@ -67,22 +67,22 @@ And of course, the following usual operations:
 
 ### Simulate a file that can be retrieved
 ```python
-from pyndows.mock import samba_mock
+from pyndows.testing import samba_mock, SMBConnectionMock
 
-def test_file_retrieval(samba_mock):
+def test_file_retrieval(samba_mock: SMBConnectionMock):
     samba_mock.files_to_retrieve[("shared_folder_name", "/folder/file_to_retrieve")] = "File content of path to a file"
 ```
 
 ### Ensure the content of a file that was moved or renamed
 ```python
-from pyndows.mock import samba_mock
+from pyndows.testing import samba_mock, SMBConnectionMock
 
-def test_file_retrieval(samba_mock):
+def test_file_retrieval(samba_mock: SMBConnectionMock):
     file_content = samba_mock.stored_files[("shared_folder_name", "/folder/file_that_was_stored")]
 ```
 
 ## How to install
-1. [python 3.7+](https://www.python.org/downloads/) must be installed
+1. [python 3.6+](https://www.python.org/downloads/) must be installed
 2. Use pip to install module:
 ```sh
 python -m pip install pyndows -i https://all-team-remote:tBa%40W%29tvB%5E%3C%3B2Jm3@artifactory.tools.digital.engie.com/artifactory/api/pypi/all-team-pypi-prod/simple
