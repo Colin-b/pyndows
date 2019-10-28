@@ -52,11 +52,9 @@ with pyndows.connect(...) as machine:
     details = pyndows.check("connection identifier", machine)
 ```
 
-## Embedded mock
+## Testing
 
-Thanks to the embedded Samba connection mock don't need a valid connection to a distant machine to be able to write test cases.
-
-pytest fixture samba_mock can be used.
+You can mock remote connections by using `samba_mock` `pytest` fixture.
 
 You can simulate every Samba connection behavior such as:
 * Exceptions being thrown
