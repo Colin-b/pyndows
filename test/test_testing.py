@@ -6,13 +6,13 @@ import gzip
 import pytest
 
 import pyndows
-from pyndows.mock import samba_mock
+from pyndows.testing import samba_mock, SMBConnectionMock
 
 
 def test_remaining_files_to_retrieve_when_reset():
-    pyndows.mock.SMBConnectionMock.files_to_retrieve["test"] = "Test"
+    pyndows.testing.SMBConnectionMock.files_to_retrieve["test"] = "Test"
     with pytest.raises(Exception) as exception_info:
-        pyndows.mock.SMBConnectionMock.reset()
+        pyndows.testing.SMBConnectionMock.reset()
     assert (
         str(exception_info.value)
         == "Expected files were not retrieved: {'test': 'Test'}"
@@ -20,20 +20,20 @@ def test_remaining_files_to_retrieve_when_reset():
 
 
 def test_remaining_echo_responses_when_reset():
-    pyndows.mock.SMBConnectionMock.echo_responses["test"] = "Test"
+    pyndows.testing.SMBConnectionMock.echo_responses["test"] = "Test"
     with pytest.raises(Exception) as exception_info:
-        pyndows.mock.SMBConnectionMock.reset()
+        pyndows.testing.SMBConnectionMock.reset()
     assert str(exception_info.value) == "Echo were not requested: {'test': 'Test'}"
 
 
-def test_connection_can_be_used_as_context_manager(samba_mock):
+def test_connection_can_be_used_as_context_manager(samba_mock: SMBConnectionMock):
     with pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     ):
         pass
 
 
-def test_non_text_file_can_be_stored(samba_mock):
+def test_non_text_file_can_be_stored(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
@@ -54,7 +54,7 @@ def test_non_text_file_can_be_stored(samba_mock):
         )
 
 
-def test_file_retrieval_using_path(samba_mock):
+def test_file_retrieval_using_path(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )

@@ -108,7 +108,7 @@ class SMBConnectionMock:
 
 
 @pytest.fixture
-def samba_mock(monkeypatch):
+def samba_mock(monkeypatch) -> SMBConnectionMock:
     import smb.SMBConnection
 
     monkeypatch.setattr(smb.SMBConnection, "SMBConnection", SMBConnectionMock)
