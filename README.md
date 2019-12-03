@@ -1,11 +1,12 @@
 <h2 align="center">Accessing Windows from Linux</h2>
 
 <p align="center">
-<a href='https://github.tools.digital.engie.com/gempy/pyndows/releases/latest'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=version'></a>
-<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master'></a>
-<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/cobertura/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=testCoverage'></a>
+<a href="https://pypi.org/project/pyndows/"><img alt="pypi version" src="https://img.shields.io/pypi/v/pyndows"></a>
+<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Build status" src="https://api.travis-ci.org/Colin-b/pyndows.svg?branch=develop"></a>
+<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Coverage" src="https://img.shields.io/badge/coverage-100%25-brightgreen"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href='https://pse.tools.digital.engie.com/all/job/team/view/Python%20modules/job/pyndows/job/master/lastSuccessfulBuild/testReport/'><img src='https://pse.tools.digital.engie.com/all/buildStatus/icon?job=team/pyndows/master&config=testCount'></a>
+<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Number of tests" src="https://img.shields.io/badge/tests-20 passed-blue"></a>
+<a href="https://pypi.org/project/pyndows/"><img alt="Number of downloads" src="https://img.shields.io/pypi/dm/pyndows"></a>
 </p>
 
 ## Retrieve a file (from Windows to Linux)
@@ -83,5 +84,5 @@ def test_file_retrieval(samba_mock: SMBConnectionMock):
 1. [python 3.6+](https://www.python.org/downloads/) must be installed
 2. Use pip to install module:
 ```sh
-python -m pip install pyndows -i https://all-team-remote:tBa%40W%29tvB%5E%3C%3B2Jm3@artifactory.tools.digital.engie.com/artifactory/api/pypi/all-team-pypi-prod/simple
+python -m pip install pyndows
 ```

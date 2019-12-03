@@ -10,20 +10,20 @@ from pyndows.testing import samba_mock, SMBConnectionMock
 
 
 def test_remaining_files_to_retrieve_when_reset():
-    pyndows.testing.SMBConnectionMock.files_to_retrieve["test"] = "Test"
+    pyndows.testing.SMBConnectionMock.files_to_retrieve["tests"] = "Test"
     with pytest.raises(Exception) as exception_info:
         pyndows.testing.SMBConnectionMock.reset()
     assert (
         str(exception_info.value)
-        == "Expected files were not retrieved: {'test': 'Test'}"
+        == "Expected files were not retrieved: {'tests': 'Test'}"
     )
 
 
 def test_remaining_echo_responses_when_reset():
-    pyndows.testing.SMBConnectionMock.echo_responses["test"] = "Test"
+    pyndows.testing.SMBConnectionMock.echo_responses["tests"] = "Test"
     with pytest.raises(Exception) as exception_info:
         pyndows.testing.SMBConnectionMock.reset()
-    assert str(exception_info.value) == "Echo were not requested: {'test': 'Test'}"
+    assert str(exception_info.value) == "Echo were not requested: {'tests': 'Test'}"
 
 
 def test_connection_can_be_used_as_context_manager(samba_mock: SMBConnectionMock):

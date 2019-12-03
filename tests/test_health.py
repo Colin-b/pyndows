@@ -22,10 +22,10 @@ def test_pass_health_check(samba_mock: SMBConnectionMock, monkeypatch):
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
     samba_mock.echo_responses[b""] = b""
-    assert pyndows.check("test", connection) == (
+    assert pyndows.check("tests", connection) == (
         "pass",
         {
-            "test:echo": {
+            "tests:echo": {
                 "componentType": "TestComputer",
                 "observedValue": "",
                 "status": "pass",
@@ -40,10 +40,10 @@ def test_fail_health_check(samba_mock: SMBConnectionMock, monkeypatch):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    assert pyndows.check("test", connection) == (
+    assert pyndows.check("tests", connection) == (
         "fail",
         {
-            "test:echo": {
+            "tests:echo": {
                 "componentType": "TestComputer",
                 "status": "fail",
                 "time": "2018-10-11T15:05:05.663979",
