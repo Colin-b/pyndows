@@ -73,3 +73,42 @@ def test_file_retrieval_using_path(samba_mock: SMBConnectionMock):
         )
         with gzip.open(os.path.join(temp_dir, "local_file_retrieved")) as local_file:
             assert local_file.read() == b"Test Content"
+
+
+def test_file_retrieval_using_str_content(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = "data"
+
+        pyndows.get(
+            connection,
+            "TestShare",
+            "TestFilePath",
+            os.path.join(temp_dir, "local_file_retrieved"),
+        )
+        with open(os.path.join(temp_dir, "local_file_retrieved"), "rt") as local_file:
+            assert local_file.read() == "data"
+
+
+def test_file_retrieval_using_bytes_content(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        bytes_content_file_path = os.path.join(temp_dir, "local_file")
+        with gzip.open(bytes_content_file_path, mode="w") as distant_file:
+            distant_file.write(b"Test Content")
+        samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = open(
+            bytes_content_file_path, "rb"
+        ).read()
+
+        pyndows.get(
+            connection,
+            "TestShare",
+            "TestFilePath",
+            os.path.join(temp_dir, "local_file_retrieved"),
+        )
+        with gzip.open(os.path.join(temp_dir, "local_file_retrieved")) as local_file:
+            assert local_file.read() == b"Test Content"

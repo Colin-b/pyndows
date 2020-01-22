@@ -84,7 +84,12 @@ class SMBConnectionMock:
                 with open(retrieved_file_content, mode="rb") as retrieved_file:
                     file.write(retrieved_file.read())
             else:
-                file.write(str.encode(retrieved_file_content))
+                try:
+                    # Try to store string in order to compare it easily
+                    file.write(str.encode(retrieved_file_content))
+                except TypeError:
+                    # Keep bytes when content is not str compatible (eg. Zip file)
+                    file.write(retrieved_file_content)
             return 0, 0
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
