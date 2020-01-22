@@ -2,10 +2,10 @@
 
 <p align="center">
 <a href="https://pypi.org/project/pyndows/"><img alt="pypi version" src="https://img.shields.io/pypi/v/pyndows"></a>
-<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Build status" src="https://api.travis-ci.org/Colin-b/pyndows.svg?branch=develop"></a>
+<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Build status" src="https://api.travis-ci.org/Colin-b/pyndows.svg?branch=master"></a>
 <a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Coverage" src="https://img.shields.io/badge/coverage-100%25-brightgreen"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Number of tests" src="https://img.shields.io/badge/tests-20 passed-blue"></a>
+<a href="https://travis-ci.org/Colin-b/pyndows"><img alt="Number of tests" src="https://img.shields.io/badge/tests-25 passed-blue"></a>
 <a href="https://pypi.org/project/pyndows/"><img alt="Number of downloads" src="https://img.shields.io/pypi/dm/pyndows"></a>
 </p>
 

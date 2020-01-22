@@ -2,6 +2,7 @@ import os.path
 import re
 from typing import List
 from collections import namedtuple
+import datetime
 
 import pytest
 
@@ -11,13 +12,29 @@ from smb.base import SharedFile
 SharedFileMock = namedtuple("SharedFileMock", ["filename"])
 
 
+class _FileStore(dict):
+    def try_get(self, key, timeout=1):
+        """
+        Wait until the key is present to return the value.
+
+        :param timeout: Maximum amount of seconds to wait
+        :raises TimeoutError: in case timeout is reached and key is still not present.
+        """
+        end = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
+        while datetime.datetime.now() <= end:
+            if key in self:
+                return self.get(key)
+        else:
+            raise TimeoutError(f"{key} could not be found within {timeout} seconds.")
+
+
 class SMBConnectionMock:
     """
     Mock a Samba Connection object.
     """
 
     should_connect = True
-    stored_files = {}
+    stored_files = _FileStore()
     files_to_retrieve = {}
     echo_responses = {}
     storeFile_failure = False
@@ -76,15 +93,24 @@ class SMBConnectionMock:
         )
 
     def retrieveFile(self, share_drive_path: str, file_path: str, file) -> (int, int):
-        retrieved_file_content = SMBConnectionMock.files_to_retrieve.pop(
-            (share_drive_path, file_path), None
-        )
+        file_id = (share_drive_path, file_path)
+        if file_id not in SMBConnectionMock.files_to_retrieve:
+            retrieved_file_content = SMBConnectionMock.stored_files.get(file_id)
+        else:
+            retrieved_file_content = SMBConnectionMock.files_to_retrieve.pop(
+                (share_drive_path, file_path), None
+            )
         if retrieved_file_content is not None:
             if os.path.isfile(retrieved_file_content):
                 with open(retrieved_file_content, mode="rb") as retrieved_file:
                     file.write(retrieved_file.read())
             else:
-                file.write(str.encode(retrieved_file_content))
+                try:
+                    # Try to store string in order to compare it easily
+                    file.write(str.encode(retrieved_file_content))
+                except TypeError:
+                    # Keep bytes when content is not str compatible (eg. Zip file)
+                    file.write(retrieved_file_content)
             return 0, 0
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
