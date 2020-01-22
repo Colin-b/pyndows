@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow to store bytes content using Mock.
 - Mock is now able to retrieve a file that was previously stored.
 
+### Added
+- Mock stored files can now be retrieved with the help of a timeout via `try_get` method.
+
 ## [3.1.0] - 2019-12-03
 ### Added
 - Initial release.

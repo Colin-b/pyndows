@@ -2,6 +2,7 @@ import os.path
 import re
 from typing import List
 from collections import namedtuple
+import datetime
 
 import pytest
 
@@ -11,13 +12,29 @@ from smb.base import SharedFile
 SharedFileMock = namedtuple("SharedFileMock", ["filename"])
 
 
+class _FileStore(dict):
+    def try_get(self, key, timeout=1):
+        """
+        Wait until the key is present to return the value.
+
+        :param timeout: Maximum amount of seconds to wait
+        :raises TimeoutError: in case timeout is reached and key is still not present.
+        """
+        end = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
+        while datetime.datetime.now() <= end:
+            if key in self:
+                return self.get(key)
+        else:
+            raise TimeoutError(f"{key} could not be found within {timeout} seconds.")
+
+
 class SMBConnectionMock:
     """
     Mock a Samba Connection object.
     """
 
     should_connect = True
-    stored_files = {}
+    stored_files = _FileStore()
     files_to_retrieve = {}
     echo_responses = {}
     storeFile_failure = False

@@ -2,6 +2,8 @@ import os
 import os.path
 import tempfile
 import gzip
+import threading
+import time
 
 import pytest
 
@@ -51,6 +53,62 @@ def test_non_text_file_can_be_stored(samba_mock: SMBConnectionMock):
         assert (
             gzip.decompress(samba_mock.stored_files[("TestShare", "TestFilePath")])
             == b"Test Content Move"
+        )
+
+
+def test_async_retrieval(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with gzip.open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
+            distant_file.write(b"Test Content Move")
+
+        def add_with_delay(delay: int):
+            time.sleep(delay)
+            pyndows.move(
+                connection,
+                "TestShare",
+                "TestFilePath",
+                os.path.join(temp_dir, "local_file"),
+            )
+
+        threading.Thread(target=add_with_delay, args=(2,)).start()
+
+        assert (
+            gzip.decompress(
+                samba_mock.stored_files.try_get(
+                    ("TestShare", "TestFilePath"), timeout=3
+                )
+            )
+            == b"Test Content Move"
+        )
+
+
+def test_async_retrieval_timeout(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with gzip.open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
+            distant_file.write(b"Test Content Move")
+
+        def add_with_delay(delay: int):
+            time.sleep(delay)
+            pyndows.move(
+                connection,
+                "TestShare",
+                "TestFilePath",
+                os.path.join(temp_dir, "local_file"),
+            )
+
+        threading.Thread(target=add_with_delay, args=(2,)).start()
+
+        with pytest.raises(TimeoutError) as exception_info:
+            samba_mock.stored_files.try_get(("TestShare", "TestFilePath"))
+        assert (
+            str(exception_info.value)
+            == "('TestShare', 'TestFilePath') could not be found within 1 seconds."
         )
 
 
