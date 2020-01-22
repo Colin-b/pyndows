@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Allow to store bytes content using Mock.
+- Mock is now able to retrieve a file that was previously stored.
 
 ## [3.1.0] - 2019-12-03
 ### Added

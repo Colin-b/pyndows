@@ -76,9 +76,13 @@ class SMBConnectionMock:
         )
 
     def retrieveFile(self, share_drive_path: str, file_path: str, file) -> (int, int):
-        retrieved_file_content = SMBConnectionMock.files_to_retrieve.pop(
-            (share_drive_path, file_path), None
-        )
+        file_id = (share_drive_path, file_path)
+        if file_id not in SMBConnectionMock.files_to_retrieve:
+            retrieved_file_content = SMBConnectionMock.stored_files.get(file_id)
+        else:
+            retrieved_file_content = SMBConnectionMock.files_to_retrieve.pop(
+                (share_drive_path, file_path), None
+            )
         if retrieved_file_content is not None:
             if os.path.isfile(retrieved_file_content):
                 with open(retrieved_file_content, mode="rb") as retrieved_file:

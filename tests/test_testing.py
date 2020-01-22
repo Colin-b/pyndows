@@ -112,3 +112,34 @@ def test_file_retrieval_using_bytes_content(samba_mock: SMBConnectionMock):
         )
         with gzip.open(os.path.join(temp_dir, "local_file_retrieved")) as local_file:
             assert local_file.read() == b"Test Content"
+
+
+def test_retrieval_of_stored_non_text_file(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with gzip.open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
+            distant_file.write(b"Test Content Move")
+
+        pyndows.move(
+            connection,
+            "TestShare",
+            "TestFilePath",
+            os.path.join(temp_dir, "local_file"),
+        )
+
+        pyndows.get(
+            connection,
+            "TestShare",
+            "TestFilePath",
+            os.path.join(temp_dir, "local_file_retrieved"),
+        )
+
+        with gzip.open(os.path.join(temp_dir, "local_file_retrieved")) as local_file:
+            assert local_file.read() == b"Test Content Move"
+
+        assert (
+            gzip.decompress(samba_mock.stored_files[("TestShare", "TestFilePath")])
+            == b"Test Content Move"
+        )
