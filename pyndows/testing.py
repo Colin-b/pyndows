@@ -149,7 +149,7 @@ class SMBConnectionMock:
 
         if not files_list:
             raise OperationFailure("Mock for listPath failure.", [])
-        return sorted(list(set(files_list)), key=lambda file: file.filename)
+        return sorted(set(files_list), key=lambda file: file.filename)
 
     def echo(self, data, timeout: int = 10):
         echo_response = SMBConnectionMock.echo_responses.pop(data, None)
