@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.3.0] - 2020-02-03
 ### Added
 - Added get_folder_contents which returns list of the folders/files in the shared folder or one of its sub-folders.
 - Mocked SharedFile object now contains also the type of the file (file or directory).
