@@ -6,8 +6,6 @@ from typing import Optional, List
 from smb.SMBConnection import (
     SMBConnection,
     SMB_FILE_ATTRIBUTE_READONLY,
-    SMB_FILE_ATTRIBUTE_HIDDEN,
-    SMB_FILE_ATTRIBUTE_SYSTEM,
     SMB_FILE_ATTRIBUTE_ARCHIVE,
     SMB_FILE_ATTRIBUTE_INCL_NORMAL,
     SMB_FILE_ATTRIBUTE_DIRECTORY,
@@ -141,19 +139,18 @@ def get_folder_content(
     pattern: str = "*",
 ) -> List[SharedFile]:
     """
-    Returns a list of files or folders matching given pattern within a folder.
+    Returns a list of files or folders matching given pattern within a folder (non-recursively).
 
     :param connection: Samba connection.
     :param share_folder: Remote computer name.
-    :param folder_path: The path of the folder for which the list of contents are returned.
-    Should be a relative path from the share_folder.
-    Defaults to an empty string which means the root of the shared folder
-    :param include_folders: Include folders in the returned list.
-    Defaults to True, when it's set to false, only a list of files will be returned.
-    :param pattern: a regex pattern to match it on files/folders names.
-    Defaults to * which includes all the names.
-
-    :return: A List of SharedFile objects, an empty list if the given folder doesn't exist.
+    :param folder_path: Folder path for which the content is returned.
+    Must be relative to share_folder.
+    Defaults to the root of the shared folder (empty string).
+    :param include_folders: Should sub folders be included in the results.
+    Include sub folders by default. Set to False to list only files.
+    :param pattern: Filter out files or sub folders based on this pattern (`*` character means all).
+    Include everything but . and .. by default (*).
+    :return: A List of SharedFile objects, empty if the given folder does not exist.
     """
     search = (
         SMB_FILE_ATTRIBUTE_READONLY
@@ -171,7 +168,7 @@ def get_folder_content(
             for file in connection.listPath(
                 share_folder, folder_path, pattern=pattern, search=search
             )
-            if file.filename != "." and file.filename != ".."
+            if file.filename not in (".", "..")
         ]
     except OperationFailure:
         return []

@@ -123,7 +123,6 @@ class SMBConnectionMock:
     def listPath(
         self, service_name: str, path: str, search: int = 0, pattern: str = "*",
     ) -> List[SharedFile]:
-
         pattern = pattern.replace("*", ".*")
         service_name = service_name.replace(os.altsep, os.sep)
         path = path.replace(os.altsep, os.sep)
@@ -135,22 +134,16 @@ class SMBConnectionMock:
                 return file_path.split(os.sep, maxsplit=1)[0], True
             return file_path, False
 
-        path = (
-            service_name + path
-            if path.endswith(os.sep) or path == ""
-            else f"{service_name + path + os.sep}"
-        )
+        path = path if not path or path.endswith(os.sep) else f"{path + os.sep}"
 
         files_list = []
         for shared_folder, file_path in SMBConnectionMock.stored_files:
             shared_folder = shared_folder.replace(os.altsep, os.sep)
             file_path = file_path.replace(os.altsep, os.sep)
-            file_in_path = to_file_in_path(service_name + file_path, path)
+            file_in_path = to_file_in_path(file_path, path)
             if (
                 shared_folder == service_name
-                and f"{os.path.dirname(service_name + file_path) + os.sep}".startswith(
-                    path
-                )
+                and f"{os.path.dirname(file_path) + os.sep}".startswith(path)
                 and re.search(pattern, file_in_path[0])
             ):
                 if (
