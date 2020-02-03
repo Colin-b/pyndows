@@ -139,7 +139,7 @@ def get_folder_contents(
     path: str = "",
     include_folders: bool = True,
     pattern: str = "",
-) -> Optional[List[SharedFile]]:
+) -> List[SharedFile]:
     """
     Returns a list of a folder contents which match a given pattern.
 
@@ -151,11 +151,9 @@ def get_folder_contents(
     :param include_folders: Include folders in the returned list.
     Defaults to True, when it's set to false, only a list of files will be returned.
     :param pattern: a regex pattern to match it on files/folders names.
-    Defaults to * which include all the names.
+    Defaults to '' which includes all the names.
 
-
-    :return: A List of SharedFile objects.
-    Checks are based on https://inadarei.github.io/rfc-healthcheck/
+    :return: A List of SharedFile objects, an empty list if the given folder doesn't exist.
     """
     search = (
         SMB_FILE_ATTRIBUTE_READONLY
@@ -172,7 +170,7 @@ def get_folder_contents(
     try:
         return connection.listPath(share_folder, path, pattern=pattern, search=search)
     except OperationFailure:
-        return
+        return []
 
 
 def get_file_desc(
