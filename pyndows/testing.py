@@ -6,7 +6,7 @@ import datetime
 
 import pytest
 
-from smb.smb_structs import OperationFailure
+from smb.smb_structs import OperationFailure, SMB_FILE_ATTRIBUTE_DIRECTORY
 from smb.base import SharedFile
 
 SharedFileMock = namedtuple("SharedFileMock", ["filename", "isDirectory"])
@@ -138,7 +138,10 @@ class SMBConnectionMock:
                 and f"{os.path.dirname(service_name + file_path)}/".startswith(path)
                 and re.search(pattern, file_in_path[0])
             ):
-                if search == 65591 or (search == 65575 and not file_in_path[1]):
+                if (
+                    search | SMB_FILE_ATTRIBUTE_DIRECTORY == search
+                    or not file_in_path[1]
+                ):
                     files_list.append(SharedFileMock(*file_in_path))
 
         if not files_list:
