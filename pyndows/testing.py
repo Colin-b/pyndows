@@ -129,11 +129,10 @@ class SMBConnectionMock:
         path = path if not path or path.endswith(os.sep) else f"{path}{os.sep}"
 
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
-            file_path = file_path[len(path) :]
-            is_directory = os.sep in file_path
-            if is_directory:
-                return file_path.split(os.sep, maxsplit=1)[0], True
-            return file_path, False
+            if f"{os.path.dirname(file_path)}{os.sep}".startswith(path):
+                file_path = file_path[len(path) :]
+                return file_path.split(os.sep, maxsplit=1)[0], os.sep in file_path
+            return None, None
 
         files_list = []
         for shared_folder, file_path in SMBConnectionMock.stored_files:
@@ -141,8 +140,8 @@ class SMBConnectionMock:
             file_path = file_path.replace(os.altsep, os.sep)
             file_name, is_directory = to_file_in_path(file_path, path)
             if (
-                shared_folder == service_name
-                and f"{os.path.dirname(file_path)}{os.sep}".startswith(path)
+                file_name
+                and shared_folder == service_name
                 and re.search(pattern, file_name)
             ):
                 if search | SMB_FILE_ATTRIBUTE_DIRECTORY == search or not is_directory:
