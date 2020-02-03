@@ -1,6 +1,5 @@
 import os
 import os.path
-import tempfile
 
 import pytest
 
@@ -41,106 +40,87 @@ def test_connection_timeout(samba_mock: SMBConnectionMock):
     )
 
 
-def test_file_retrieval(samba_mock: SMBConnectionMock):
+def test_file_retrieval(samba_mock: SMBConnectionMock, tmpdir):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    with tempfile.TemporaryDirectory() as temp_dir:
-        samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = "Test Content"
+    samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = "Test Content"
 
+    pyndows.get(
+        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+    )
+    with open(os.path.join(tmpdir, "local_file")) as local_file:
+        assert local_file.read() == "Test Content"
+
+
+def test_operation_failure_during_file_retrieval(samba_mock: SMBConnectionMock, tmpdir):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with pytest.raises(Exception) as exception_info:
         pyndows.get(
-            connection,
-            "TestShare",
-            "TestFilePath",
-            os.path.join(temp_dir, "local_file"),
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
         )
-        with open(os.path.join(temp_dir, "local_file")) as local_file:
-            assert local_file.read() == "Test Content"
+    assert (
+        str(exception_info.value)
+        == r"Unable to retrieve \\TestComputer\TestShareTestFilePath file"
+    )
 
 
-def test_operation_failure_during_file_retrieval(samba_mock: SMBConnectionMock):
+def test_file_move(samba_mock: SMBConnectionMock, tmpdir):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with pytest.raises(Exception) as exception_info:
-            pyndows.get(
-                connection,
-                "TestShare",
-                "TestFilePath",
-                os.path.join(temp_dir, "local_file"),
-            )
-        assert (
-            str(exception_info.value)
-            == r"Unable to retrieve \\TestComputer\TestShareTestFilePath file"
-        )
+    with open(os.path.join(tmpdir, "local_file"), mode="w") as distant_file:
+        distant_file.write("Test Content Move")
+
+    pyndows.move(
+        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+    )
+
+    assert samba_mock.stored_files[("TestShare", "TestFilePath")] == "Test Content Move"
 
 
-def test_file_move(samba_mock: SMBConnectionMock):
+def test_store_file_operation_failure_during_file_move(
+    samba_mock: SMBConnectionMock, tmpdir
+):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
-            distant_file.write("Test Content Move")
+    with open(os.path.join(tmpdir, "local_file"), mode="w") as distant_file:
+        distant_file.write("Test Content Move")
 
+    samba_mock.storeFile_failure = True
+    with pytest.raises(Exception) as exception_info:
         pyndows.move(
-            connection,
-            "TestShare",
-            "TestFilePath",
-            os.path.join(temp_dir, "local_file"),
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
         )
 
-        assert (
-            samba_mock.stored_files[("TestShare", "TestFilePath")]
-            == "Test Content Move"
-        )
+    assert (
+        str(exception_info.value)
+        == r"Unable to write \\TestComputer\TestShareTestFilePath.tmp"
+    )
 
 
-def test_store_file_operation_failure_during_file_move(samba_mock: SMBConnectionMock):
+def test_rename_operation_failure_during_file_move(
+    samba_mock: SMBConnectionMock, tmpdir
+):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
-            distant_file.write("Test Content Move")
+    with open(os.path.join(tmpdir, "local_file"), mode="w") as distant_file:
+        distant_file.write("Test Content Move")
 
-        samba_mock.storeFile_failure = True
-        with pytest.raises(Exception) as exception_info:
-            pyndows.move(
-                connection,
-                "TestShare",
-                "TestFilePath",
-                os.path.join(temp_dir, "local_file"),
-            )
-
-        assert (
-            str(exception_info.value)
-            == r"Unable to write \\TestComputer\TestShareTestFilePath.tmp"
+    samba_mock.rename_failure = True
+    with pytest.raises(Exception) as exception_info:
+        pyndows.move(
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
         )
 
-
-def test_rename_operation_failure_during_file_move(samba_mock: SMBConnectionMock):
-    connection = pyndows.connect(
-        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    assert (
+        str(exception_info.value)
+        == r"Unable to rename temp file into \\TestComputer\TestShareTestFilePath"
     )
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with open(os.path.join(temp_dir, "local_file"), mode="w") as distant_file:
-            distant_file.write("Test Content Move")
-
-        samba_mock.rename_failure = True
-        with pytest.raises(Exception) as exception_info:
-            pyndows.move(
-                connection,
-                "TestShare",
-                "TestFilePath",
-                os.path.join(temp_dir, "local_file"),
-            )
-
-        assert (
-            str(exception_info.value)
-            == r"Unable to rename temp file into \\TestComputer\TestShareTestFilePath"
-        )
 
 
 def test_file_rename(samba_mock: SMBConnectionMock):
@@ -207,12 +187,12 @@ def test_get_all_folder_contents(samba_mock: SMBConnectionMock):
         connection, "TestShare/", folder_path="A"
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="3", isDirectory=False),
-        SharedFileMock(filename="2", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
+        SharedFileMock(filename="2", isDirectory=False),
+        SharedFileMock(filename="3", isDirectory=False),
         SharedFileMock(filename="i", isDirectory=True),
-    }
+    ]
 
 
 def test_get_all_folder_contents_providing_paths_with_backslashes(
@@ -237,12 +217,12 @@ def test_get_all_folder_contents_providing_paths_with_backslashes(
         connection, "TestShare\\", folder_path="A"
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="3", isDirectory=False),
-        SharedFileMock(filename="2", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
+        SharedFileMock(filename="2", isDirectory=False),
+        SharedFileMock(filename="3", isDirectory=False),
         SharedFileMock(filename="i", isDirectory=True),
-    }
+    ]
 
 
 def test_get_all_sub_folder_contents_providing_paths_with_a_mix_of_slashes_and_backslashes(
@@ -267,10 +247,10 @@ def test_get_all_sub_folder_contents_providing_paths_with_a_mix_of_slashes_and_b
         connection, "TestShare/", folder_path="A\\i"
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="2", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
-    }
+        SharedFileMock(filename="2", isDirectory=False),
+    ]
 
 
 def test_get_all_folder_contents_empty_folder(samba_mock: SMBConnectionMock):
@@ -365,11 +345,11 @@ def test_get_all_folder_contents_excluding_directories(samba_mock: SMBConnection
         connection, "TestShare/", folder_path="A", include_folders=False
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="3", isDirectory=False),
-        SharedFileMock(filename="2", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
-    }
+        SharedFileMock(filename="2", isDirectory=False),
+        SharedFileMock(filename="3", isDirectory=False),
+    ]
 
 
 def test_get_all_folder_contents_matching_a_pattern(samba_mock: SMBConnectionMock):
@@ -392,11 +372,11 @@ def test_get_all_folder_contents_matching_a_pattern(samba_mock: SMBConnectionMoc
         connection, "TestShare/", folder_path="A", pattern="^1"
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="12", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
+        SharedFileMock(filename="12", isDirectory=False),
         SharedFileMock(filename="1i", isDirectory=True),
-    }
+    ]
 
 
 def test_get_all_shared_folder_contents(samba_mock: SMBConnectionMock):
@@ -419,10 +399,10 @@ def test_get_all_shared_folder_contents(samba_mock: SMBConnectionMock):
         connection, "TestShare/", folder_path=""
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="A", isDirectory=True),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
-    }
+        SharedFileMock(filename="A", isDirectory=True),
+    ]
 
 
 def test_get_all_sub_folder_contents(samba_mock: SMBConnectionMock):
@@ -445,10 +425,10 @@ def test_get_all_sub_folder_contents(samba_mock: SMBConnectionMock):
         connection, "TestShare/", folder_path="A/i"
     )
 
-    assert set(shared_folder_contents) == {
-        SharedFileMock(filename="2", isDirectory=False),
+    assert shared_folder_contents == [
         SharedFileMock(filename="1", isDirectory=False),
-    }
+        SharedFileMock(filename="2", isDirectory=False),
+    ]
 
 
 def test_get_file_desc_file_exists(samba_mock: SMBConnectionMock):
