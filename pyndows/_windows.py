@@ -1,9 +1,17 @@
 from datetime import datetime
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
-from smb.SMBConnection import SMBConnection
+from smb.SMBConnection import (
+    SMBConnection,
+    SMB_FILE_ATTRIBUTE_READONLY,
+    SMB_FILE_ATTRIBUTE_HIDDEN,
+    SMB_FILE_ATTRIBUTE_SYSTEM,
+    SMB_FILE_ATTRIBUTE_ARCHIVE,
+    SMB_FILE_ATTRIBUTE_INCL_NORMAL,
+    SMB_FILE_ATTRIBUTE_DIRECTORY,
+)
 from smb.base import SharedFile
 from smb.smb_structs import OperationFailure
 
@@ -123,6 +131,48 @@ def _rename(
             f"Unable to rename \\\\{connection.remote_name}\\{share_folder}{old_file_path} "
             f"into \\\\{connection.remote_name}\\{share_folder}{new_file_path}"
         )
+
+
+def get_folder_contents(
+    connection: SMBConnection,
+    share_folder: str,
+    path: str = "",
+    include_folders: bool = True,
+    pattern: str = "",
+) -> Optional[List[SharedFile]]:
+    """
+    Returns a list of a folder contents which match a given pattern.
+
+    :param connection: Samba connection.
+    :param share_folder: Remote computer name.
+    :param path: The path of the folder for which the list of contents are returned.
+    Should be a relative path from the share_folder.
+    Defaults to an empty string which means the root of the shared folder
+    :param include_folders: Include folders in the returned list.
+    Defaults to True, when it's set to false, only a list of files will be returned.
+    :param pattern: a regex pattern to match it on files/folders names.
+    Defaults to * which include all the names.
+
+
+    :return: A List of SharedFile objects.
+    Checks are based on https://inadarei.github.io/rfc-healthcheck/
+    """
+    search = (
+        SMB_FILE_ATTRIBUTE_READONLY
+        | SMB_FILE_ATTRIBUTE_HIDDEN
+        | SMB_FILE_ATTRIBUTE_SYSTEM
+        | SMB_FILE_ATTRIBUTE_ARCHIVE
+        | SMB_FILE_ATTRIBUTE_INCL_NORMAL
+    )
+    if include_folders:
+        search = search | SMB_FILE_ATTRIBUTE_DIRECTORY
+    logger.info(
+        f"Returning the list of contents at \\\\{connection.remote_name}\\{share_folder}\\{path} ..."
+    )
+    try:
+        return connection.listPath(share_folder, path, pattern=pattern, search=search)
+    except OperationFailure:
+        return
 
 
 def get_file_desc(

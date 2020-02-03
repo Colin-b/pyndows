@@ -9,7 +9,7 @@ import pytest
 from smb.smb_structs import OperationFailure
 from smb.base import SharedFile
 
-SharedFileMock = namedtuple("SharedFileMock", ["filename"])
+SharedFileMock = namedtuple("SharedFileMock", ["filename", "isDirectory"])
 
 
 class _FileStore(dict):
@@ -115,16 +115,34 @@ class SMBConnectionMock:
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
     def listPath(
-        self, service_name: str, path: str, pattern: str = "*"
+        self, service_name: str, path: str, search: int = 6, pattern: str = "*"
     ) -> List[SharedFile]:
-        files_list = [
-            SharedFileMock(os.path.basename(file_path))
-            for _, file_path in SMBConnectionMock.stored_files
-            if re.search(pattern, os.path.basename(file_path))
-        ]
+        def to_file_in_path(file_path: str, path: str) -> (str, bool):
+            file_path = file_path[len(path) :]
+            is_directory = "/" in file_path
+            if is_directory:
+                return file_path.split("/", maxsplit=1)[0], True
+            return file_path, False
+
+        path = (
+            service_name + path
+            if path.endswith("/") or path == ""
+            else f"{service_name + path}/"
+        )
+
+        files_list = []
+        for shared_folder, file_path in SMBConnectionMock.stored_files:
+            file_in_path = to_file_in_path(service_name + file_path, path)
+            if (
+                shared_folder == service_name
+                and f"{os.path.dirname(service_name + file_path)}/".startswith(path)
+                and re.search(pattern, file_in_path[0])
+            ):
+                files_list.append(SharedFileMock(*file_in_path))
+
         if not files_list:
             raise OperationFailure("Mock for listPath failure.", [])
-        return files_list
+        return list(set(files_list))
 
     def echo(self, data, timeout: int = 10):
         echo_response = SMBConnectionMock.echo_responses.pop(data, None)

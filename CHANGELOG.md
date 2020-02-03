@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2020-02-03
+### Added
+- A list of the contents of a given folder gan be retrieved.
+- Mocked SharedFile object now contains also the type of the file (file or directory).
+
 ## [3.2.0] - 2020-01-22
 ### Fixed
 - Allow to store bytes content using Mock.
