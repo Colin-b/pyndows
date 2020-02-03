@@ -121,36 +121,36 @@ class SMBConnectionMock:
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
     def listPath(
-        self,
-        service_name: str,
-        path: str,
-        search: int = SMB_FILE_ATTRIBUTE_READONLY
-        | SMB_FILE_ATTRIBUTE_ARCHIVE
-        | SMB_FILE_ATTRIBUTE_INCL_NORMAL,
-        pattern: str = "*",
+        self, service_name: str, path: str, search: int = 0, pattern: str = "*",
     ) -> List[SharedFile]:
 
-        pattern = "" if pattern == "*" else pattern
+        pattern = pattern.replace("*", ".*")
+        service_name = service_name.replace(os.altsep, os.sep)
+        path = path.replace(os.altsep, os.sep)
 
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
             file_path = file_path[len(path) :]
-            is_directory = "/" in file_path
+            is_directory = os.sep in file_path
             if is_directory:
-                return file_path.split("/", maxsplit=1)[0], True
+                return file_path.split(os.sep, maxsplit=1)[0], True
             return file_path, False
 
         path = (
             service_name + path
-            if path.endswith("/") or path == ""
-            else f"{service_name + path}/"
+            if path.endswith(os.sep) or path == ""
+            else f"{service_name + path + os.sep}"
         )
 
         files_list = []
         for shared_folder, file_path in SMBConnectionMock.stored_files:
+            shared_folder = shared_folder.replace(os.altsep, os.sep)
+            file_path = file_path.replace(os.altsep, os.sep)
             file_in_path = to_file_in_path(service_name + file_path, path)
             if (
                 shared_folder == service_name
-                and f"{os.path.dirname(service_name + file_path)}/".startswith(path)
+                and f"{os.path.dirname(service_name + file_path) + os.sep}".startswith(
+                    path
+                )
                 and re.search(pattern, file_in_path[0])
             ):
                 if (

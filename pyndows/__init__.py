@@ -5,7 +5,7 @@ from pyndows._windows import (
     rename,
     get_file_desc,
     check,
-    get_folder_contents,
+    get_folder_content,
 )
 
 from pyndows.version import __version__

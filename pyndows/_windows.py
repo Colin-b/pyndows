@@ -133,7 +133,7 @@ def _rename(
         )
 
 
-def get_folder_contents(
+def get_folder_content(
     connection: SMBConnection,
     share_folder: str,
     folder_path: str = "",
@@ -163,7 +163,7 @@ def get_folder_contents(
     if include_folders:
         search = search | SMB_FILE_ATTRIBUTE_DIRECTORY
     logger.info(
-        f"Listing the content of \\\\{connection.remote_name}\\{share_folder}\\{path} ..."
+        f"Listing the content of \\\\{connection.remote_name}\\{share_folder}\\{folder_path} ..."
     )
     try:
         return [

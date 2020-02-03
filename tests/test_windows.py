@@ -199,8 +199,8 @@ def test_get_all_folder_contents(samba_mock: SMBConnectionMock):
     samba_mock.stored_files[("TestShare/", "A/i/1")] = "Test Find"
     samba_mock.stored_files[("TestShare/", "A/i/2")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path="A"
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A"
     )
 
     assert set(shared_folder_contents) == {
@@ -211,6 +211,56 @@ def test_get_all_folder_contents(samba_mock: SMBConnectionMock):
     }
 
 
+def test_get_all_folder_contents_providing_paths_with_backslashes(
+    samba_mock: SMBConnectionMock,
+):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+
+    samba_mock.stored_files[("TestShare\\", "1")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A\\1")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A\\2")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A\\3")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A\\i\\1")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A\\i\\2")] = "Test Find"
+
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare\\", folder_path="A"
+    )
+
+    assert set(shared_folder_contents) == {
+        SharedFileMock(filename="3", isDirectory=False),
+        SharedFileMock(filename="2", isDirectory=False),
+        SharedFileMock(filename="1", isDirectory=False),
+        SharedFileMock(filename="i", isDirectory=True),
+    }
+
+
+def test_get_all_sub_folder_contents_providing_paths_with_a_mix_of_slashes_and_backslashes(
+    samba_mock: SMBConnectionMock,
+):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+
+    samba_mock.stored_files[("TestShare/", "1")] = "Test Find"
+    samba_mock.stored_files[("TestShare/", "A/1")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A/2")] = "Test Find"
+    samba_mock.stored_files[("TestShare/", "A/3")] = "Test Find"
+    samba_mock.stored_files[("TestShare/", "A/i\\1")] = "Test Find"
+    samba_mock.stored_files[("TestShare\\", "A/i/2")] = "Test Find"
+
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A\\i"
+    )
+
+    assert set(shared_folder_contents) == {
+        SharedFileMock(filename="2", isDirectory=False),
+        SharedFileMock(filename="1", isDirectory=False),
+    }
+
+
 def test_get_all_folder_contents_empty_folder(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
@@ -218,8 +268,8 @@ def test_get_all_folder_contents_empty_folder(samba_mock: SMBConnectionMock):
 
     samba_mock.stored_files[("TestShare/", "1")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path="A"
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A"
     )
 
     assert shared_folder_contents == []
@@ -235,8 +285,8 @@ def test_get_all_folder_removes_self_directory_and_parent_directory(
     samba_mock.stored_files[("TestShare/", ".")] = ""
     samba_mock.stored_files[("TestShare/", "..")] = ""
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path=""
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path=""
     )
 
     assert shared_folder_contents == []
@@ -254,8 +304,8 @@ def test_get_all_folder_contents_excluding_directories(samba_mock: SMBConnection
     samba_mock.stored_files[("TestShare/", "A/i/1")] = "Test Find"
     samba_mock.stored_files[("TestShare/", "A/i/2")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path="A", include_folders=False
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A", include_folders=False
     )
 
     assert set(shared_folder_contents) == {
@@ -277,8 +327,8 @@ def test_get_all_folder_contents_matching_a_pattern(samba_mock: SMBConnectionMoc
     samba_mock.stored_files[("TestShare/", "A/i/1")] = "Test Find"
     samba_mock.stored_files[("TestShare/", "A/1i/2")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path="A", pattern="^1"
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A", pattern="^1"
     )
 
     assert set(shared_folder_contents) == {
@@ -300,8 +350,8 @@ def test_get_all_shared_folder_contents(samba_mock: SMBConnectionMock):
     samba_mock.stored_files[("TestShare/", "A/i/1")] = "Test Find"
     samba_mock.stored_files[("TestShare/", "A/i/2")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path=""
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path=""
     )
 
     assert set(shared_folder_contents) == {
@@ -322,8 +372,8 @@ def test_get_all_sub_folder_contents(samba_mock: SMBConnectionMock):
     samba_mock.stored_files[("TestShare/", "A/i/1")] = "Test Find"
     samba_mock.stored_files[("TestShare/", "A/i/2")] = "Test Find"
 
-    shared_folder_contents = pyndows.get_folder_contents(
-        connection, "TestShare/", path="A/i"
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", folder_path="A/i"
     )
 
     assert set(shared_folder_contents) == {
