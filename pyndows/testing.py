@@ -124,20 +124,20 @@ class SMBConnectionMock:
         self, service_name: str, path: str, search: int = 0, pattern: str = "*",
     ) -> List[SharedFile]:
         pattern = pattern.replace("*", ".*")
-        service_name = service_name.replace("/", "\\")
-        path = path.replace("/", "\\")
-        path = path if not path or path.endswith("\\") else f"{path}\\"
+        service_name = service_name.replace("/", os.sep).replace("\\", os.sep)
+        path = path.replace("/", os.sep).replace("\\", os.sep)
+        path = path if not path or path.endswith(os.sep) else f"{path}{os.sep}"
 
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
-            if f"{os.path.dirname(file_path)}\\".startswith(path):
+            if f"{os.path.dirname(file_path)}{os.sep}".startswith(path):
                 file_path = file_path[len(path) :]
-                return file_path.split("\\", maxsplit=1)[0], "\\" in file_path
+                return file_path.split(os.sep, maxsplit=1)[0], os.sep in file_path
             return None, None
 
         files_list = []
         for shared_folder, file_path in SMBConnectionMock.stored_files:
-            shared_folder = shared_folder.replace("/", "\\")
-            file_path = file_path.replace("/", "\\")
+            shared_folder = shared_folder.replace("/", os.sep).replace("\\", os.sep)
+            file_path = file_path.replace("/", os.sep).replace("\\", os.sep)
             file_name, is_directory = to_file_in_path(file_path, path)
             if (
                 file_name
