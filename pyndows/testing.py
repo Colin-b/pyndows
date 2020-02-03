@@ -126,6 +126,7 @@ class SMBConnectionMock:
         pattern = pattern.replace("*", ".*")
         service_name = service_name.replace(os.altsep, os.sep)
         path = path.replace(os.altsep, os.sep)
+        path = path if not path or path.endswith(os.sep) else f"{path}{os.sep}"
 
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
             file_path = file_path[len(path) :]
@@ -134,23 +135,18 @@ class SMBConnectionMock:
                 return file_path.split(os.sep, maxsplit=1)[0], True
             return file_path, False
 
-        path = path if not path or path.endswith(os.sep) else f"{path + os.sep}"
-
         files_list = []
         for shared_folder, file_path in SMBConnectionMock.stored_files:
             shared_folder = shared_folder.replace(os.altsep, os.sep)
             file_path = file_path.replace(os.altsep, os.sep)
-            file_in_path = to_file_in_path(file_path, path)
+            file_name, is_directory = to_file_in_path(file_path, path)
             if (
                 shared_folder == service_name
-                and f"{os.path.dirname(file_path) + os.sep}".startswith(path)
-                and re.search(pattern, file_in_path[0])
+                and f"{os.path.dirname(file_path)}{os.sep}".startswith(path)
+                and re.search(pattern, file_name)
             ):
-                if (
-                    search | SMB_FILE_ATTRIBUTE_DIRECTORY == search
-                    or not file_in_path[1]
-                ):
-                    files_list.append(SharedFileMock(*file_in_path))
+                if search | SMB_FILE_ATTRIBUTE_DIRECTORY == search or not is_directory:
+                    files_list.append(SharedFileMock(file_name, is_directory))
 
         if not files_list:
             raise OperationFailure("Mock for listPath failure.", [])
