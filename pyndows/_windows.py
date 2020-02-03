@@ -136,16 +136,16 @@ def _rename(
 def get_folder_contents(
     connection: SMBConnection,
     share_folder: str,
-    path: str = "",
+    folder_path: str = "",
     include_folders: bool = True,
     pattern: str = "*",
 ) -> List[SharedFile]:
     """
-    Returns a list of a folder contents which match a given pattern.
+    Returns a list of files or folders matching given pattern within a folder.
 
     :param connection: Samba connection.
     :param share_folder: Remote computer name.
-    :param path: The path of the folder for which the list of contents are returned.
+    :param folder_path: The path of the folder for which the list of contents are returned.
     Should be a relative path from the share_folder.
     Defaults to an empty string which means the root of the shared folder
     :param include_folders: Include folders in the returned list.
@@ -163,13 +163,13 @@ def get_folder_contents(
     if include_folders:
         search = search | SMB_FILE_ATTRIBUTE_DIRECTORY
     logger.info(
-        f"Returning the list of contents at \\\\{connection.remote_name}\\{share_folder}\\{path} ..."
+        f"Listing the content of \\\\{connection.remote_name}\\{share_folder}\\{path} ..."
     )
     try:
         return [
             file
             for file in connection.listPath(
-                share_folder, path, pattern=pattern, search=search
+                share_folder, folder_path, pattern=pattern, search=search
             )
             if file.filename != "." and file.filename != ".."
         ]
