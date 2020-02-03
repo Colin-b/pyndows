@@ -138,7 +138,7 @@ def get_folder_contents(
     share_folder: str,
     path: str = "",
     include_folders: bool = True,
-    pattern: str = "",
+    pattern: str = "*",
 ) -> List[SharedFile]:
     """
     Returns a list of a folder contents which match a given pattern.
@@ -151,14 +151,12 @@ def get_folder_contents(
     :param include_folders: Include folders in the returned list.
     Defaults to True, when it's set to false, only a list of files will be returned.
     :param pattern: a regex pattern to match it on files/folders names.
-    Defaults to '' which includes all the names.
+    Defaults to * which includes all the names.
 
     :return: A List of SharedFile objects, an empty list if the given folder doesn't exist.
     """
     search = (
         SMB_FILE_ATTRIBUTE_READONLY
-        | SMB_FILE_ATTRIBUTE_HIDDEN
-        | SMB_FILE_ATTRIBUTE_SYSTEM
         | SMB_FILE_ATTRIBUTE_ARCHIVE
         | SMB_FILE_ATTRIBUTE_INCL_NORMAL
     )
@@ -168,7 +166,13 @@ def get_folder_contents(
         f"Returning the list of contents at \\\\{connection.remote_name}\\{share_folder}\\{path} ..."
     )
     try:
-        return connection.listPath(share_folder, path, pattern=pattern, search=search)
+        return [
+            file
+            for file in connection.listPath(
+                share_folder, path, pattern=pattern, search=search
+            )
+            if file.filename != "." and file.filename != ".."
+        ]
     except OperationFailure:
         return []
 

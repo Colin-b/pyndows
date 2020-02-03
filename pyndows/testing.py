@@ -6,7 +6,13 @@ import datetime
 
 import pytest
 
-from smb.smb_structs import OperationFailure, SMB_FILE_ATTRIBUTE_DIRECTORY
+from smb.smb_structs import (
+    OperationFailure,
+    SMB_FILE_ATTRIBUTE_DIRECTORY,
+    SMB_FILE_ATTRIBUTE_READONLY,
+    SMB_FILE_ATTRIBUTE_ARCHIVE,
+    SMB_FILE_ATTRIBUTE_INCL_NORMAL,
+)
 from smb.base import SharedFile
 
 SharedFileMock = namedtuple("SharedFileMock", ["filename", "isDirectory"])
@@ -115,8 +121,17 @@ class SMBConnectionMock:
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
     def listPath(
-        self, service_name: str, path: str, search: int = 65591, pattern: str = "*"
+        self,
+        service_name: str,
+        path: str,
+        search: int = SMB_FILE_ATTRIBUTE_READONLY
+        | SMB_FILE_ATTRIBUTE_ARCHIVE
+        | SMB_FILE_ATTRIBUTE_INCL_NORMAL,
+        pattern: str = "*",
     ) -> List[SharedFile]:
+
+        pattern = "" if pattern == "*" else pattern
+
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
             file_path = file_path[len(path) :]
             is_directory = "/" in file_path

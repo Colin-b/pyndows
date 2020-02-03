@@ -211,6 +211,37 @@ def test_get_all_folder_contents(samba_mock: SMBConnectionMock):
     }
 
 
+def test_get_all_folder_contents_empty_folder(samba_mock: SMBConnectionMock):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+
+    samba_mock.stored_files[("TestShare/", "1")] = "Test Find"
+
+    shared_folder_contents = pyndows.get_folder_contents(
+        connection, "TestShare/", path="A"
+    )
+
+    assert shared_folder_contents == []
+
+
+def test_get_all_folder_removes_self_directory_and_parent_directory(
+    samba_mock: SMBConnectionMock,
+):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+
+    samba_mock.stored_files[("TestShare/", ".")] = ""
+    samba_mock.stored_files[("TestShare/", "..")] = ""
+
+    shared_folder_contents = pyndows.get_folder_contents(
+        connection, "TestShare/", path=""
+    )
+
+    assert shared_folder_contents == []
+
+
 def test_get_all_folder_contents_excluding_directories(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
