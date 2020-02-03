@@ -115,7 +115,7 @@ class SMBConnectionMock:
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
     def listPath(
-        self, service_name: str, path: str, search: int = 6, pattern: str = "*"
+        self, service_name: str, path: str, search: int = 65591, pattern: str = "*"
     ) -> List[SharedFile]:
         def to_file_in_path(file_path: str, path: str) -> (str, bool):
             file_path = file_path[len(path) :]
@@ -138,7 +138,8 @@ class SMBConnectionMock:
                 and f"{os.path.dirname(service_name + file_path)}/".startswith(path)
                 and re.search(pattern, file_in_path[0])
             ):
-                files_list.append(SharedFileMock(*file_in_path))
+                if search == 65591 or (search == 65575 and not file_in_path[1]):
+                    files_list.append(SharedFileMock(*file_in_path))
 
         if not files_list:
             raise OperationFailure("Mock for listPath failure.", [])
