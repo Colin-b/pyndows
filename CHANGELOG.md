@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- pyndows.get_folder_content listing the content of a folder (non-recursively).
+- File type (isDirectory boolean) within mocked SharedFile object.
+
 ## [3.2.0] - 2020-01-22
 ### Fixed
 - Allow to store bytes content using Mock.

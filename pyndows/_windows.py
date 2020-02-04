@@ -1,9 +1,15 @@
 from datetime import datetime
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
-from smb.SMBConnection import SMBConnection
+from smb.SMBConnection import (
+    SMBConnection,
+    SMB_FILE_ATTRIBUTE_READONLY,
+    SMB_FILE_ATTRIBUTE_ARCHIVE,
+    SMB_FILE_ATTRIBUTE_INCL_NORMAL,
+    SMB_FILE_ATTRIBUTE_DIRECTORY,
+)
 from smb.base import SharedFile
 from smb.smb_structs import OperationFailure
 
@@ -123,6 +129,49 @@ def _rename(
             f"Unable to rename \\\\{connection.remote_name}\\{share_folder}{old_file_path} "
             f"into \\\\{connection.remote_name}\\{share_folder}{new_file_path}"
         )
+
+
+def get_folder_content(
+    connection: SMBConnection,
+    share_folder: str,
+    folder_path: str = "",
+    include_folders: bool = True,
+    pattern: str = "*",
+) -> List[SharedFile]:
+    """
+    Returns a list of files or folders matching given pattern within a folder (non-recursively).
+
+    :param connection: Samba connection.
+    :param share_folder: Remote computer name.
+    :param folder_path: Folder path for which the content is returned.
+    Must be relative to share_folder.
+    Defaults to the root of the shared folder (empty string).
+    :param include_folders: Should sub folders be included in the results.
+    Include sub folders by default. Set to False to list only files.
+    :param pattern: Filter out files or sub folders based on this pattern (`*` character means all).
+    Include everything but . and .. by default (*).
+    :return: A List of SharedFile objects, empty if the given folder does not exist.
+    """
+    search = (
+        SMB_FILE_ATTRIBUTE_READONLY
+        | SMB_FILE_ATTRIBUTE_ARCHIVE
+        | SMB_FILE_ATTRIBUTE_INCL_NORMAL
+    )
+    if include_folders:
+        search = search | SMB_FILE_ATTRIBUTE_DIRECTORY
+    logger.info(
+        f"Listing the content of \\\\{connection.remote_name}\\{share_folder}\\{folder_path} ..."
+    )
+    try:
+        return [
+            file
+            for file in connection.listPath(
+                share_folder, folder_path, pattern=pattern, search=search
+            )
+            if file.filename not in (".", "..")
+        ]
+    except OperationFailure:
+        return []
 
 
 def get_file_desc(
