@@ -1,6 +1,6 @@
 import os.path
 import re
-from typing import List
+from typing import List, Union
 from collections import namedtuple
 import datetime
 
@@ -98,6 +98,14 @@ class SMBConnectionMock:
             (share_drive_path, initial_file_path), None
         )
 
+    @staticmethod
+    def _is_file(path_or_content: Union[str, bytes]) -> bool:
+        try:
+            return os.path.isfile(path_or_content)
+        except ValueError:
+            # Since python 3.8, this exception is not sent anymore, False is instead return
+            return False
+
     def retrieveFile(self, share_drive_path: str, file_path: str, file) -> (int, int):
         file_id = (share_drive_path, file_path)
         if file_id not in SMBConnectionMock.files_to_retrieve:
@@ -107,7 +115,7 @@ class SMBConnectionMock:
                 (share_drive_path, file_path), None
             )
         if retrieved_file_content is not None:
-            if os.path.isfile(retrieved_file_content):
+            if self._is_file(retrieved_file_content):
                 with open(retrieved_file_content, mode="rb") as retrieved_file:
                     file.write(retrieved_file.read())
             else:
