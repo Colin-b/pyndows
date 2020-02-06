@@ -132,6 +132,7 @@ class SMBConnectionMock:
         self, service_name: str, path: str, search: int = 0, pattern: str = "*",
     ) -> List[SharedFile]:
         pattern = pattern.replace("*", ".*")
+        pattern = pattern.replace("?", ".")
         service_name = service_name.replace("/", os.sep).replace("\\", os.sep)
         path = path.replace("/", os.sep).replace("\\", os.sep)
         path = path if not path or path.endswith(os.sep) else f"{path}{os.sep}"

@@ -379,6 +379,32 @@ def test_get_all_folder_contents_matching_a_pattern(samba_mock: SMBConnectionMoc
     ]
 
 
+def test_get_all_folder_contents_matching_a_pattern_with_question_mark_wildcard(
+    samba_mock: SMBConnectionMock,
+):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+
+    samba_mock.stored_files.update(
+        {
+            ("TestShare/", "test_12345_test"): "",
+            ("TestShare/", "test_123456_test"): "",
+            ("TestShare/", "test_123_test"): "",
+            ("TestShare/", "test_1234M_test"): "",
+        }
+    )
+
+    shared_folder_contents = pyndows.get_folder_content(
+        connection, "TestShare/", pattern="test_?????_test"
+    )
+
+    assert shared_folder_contents == [
+        SharedFileMock(filename="test_12345_test", isDirectory=False),
+        SharedFileMock(filename="test_1234M_test", isDirectory=False),
+    ]
+
+
 def test_get_all_shared_folder_contents(samba_mock: SMBConnectionMock):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
