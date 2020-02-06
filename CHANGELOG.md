@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.1] - 2020-02-06
 ### Fixed
-- Mock now replaces the ? wildcard defined in [MS-CIFS protocol](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/dc92d939-ec45-40c8-96e5-4c4091e4ab43) by a point.
+- Mock now replaces the `?` wildcard defined in [MS-CIFS protocol](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/dc92d939-ec45-40c8-96e5-4c4091e4ab43) by a `.`.
 
 ## [3.3.0] - 2020-02-04
 ### Fixed
