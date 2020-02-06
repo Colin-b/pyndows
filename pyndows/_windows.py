@@ -150,6 +150,7 @@ def get_folder_content(
     Include sub folders by default. Set to False to list only files.
     :param pattern: Filter out files or sub folders based on this pattern (`*` character means all).
     Include everything but . and .. by default (*).
+    Respects the MS-CIFS protocol. https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/dc92d939-ec45-40c8-96e5-4c4091e4ab43
     :return: A List of SharedFile objects, empty if the given folder does not exist.
     """
     search = (
