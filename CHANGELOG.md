@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2020-02-25
+### Changed
+- pyndows.move now allows timeout argument to be changed when storing the file.
+- Testing: deprecated the storefile attribute, its replaced by storeFile_exceptions.
+
 ## [3.3.1] - 2020-02-06
 ### Fixed
 - Mock now replaces the `?` wildcard defined in [MS-CIFS protocol](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/dc92d939-ec45-40c8-96e5-4c4091e4ab43) by a `.`.
@@ -30,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/Colin-b/pyndows/compare/v3.3.1...HEAD
+[Unreleased]: https://github.com/Colin-b/pyndows/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/Colin-b/pyndows/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/Colin-b/pyndows/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/Colin-b/pyndows/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/Colin-b/pyndows/compare/v3.1.0...v3.2.0

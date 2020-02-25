@@ -72,6 +72,7 @@ def move(
     file_path: str,
     input_file_path: str,
     temp_file_suffix=".tmp",
+    timeout=30,
 ):
     logger.info(
         f"Moving {input_file_path} file to \\\\{connection.remote_name}\\{share_folder}{file_path}..."
@@ -80,7 +81,7 @@ def move(
     try:
         with open(input_file_path, "rb") as input_file:
             connection.storeFile(
-                share_folder, f"{file_path}{temp_file_suffix}", input_file
+                share_folder, f"{file_path}{temp_file_suffix}", input_file, timeout
             )
     except OperationFailure:
         raise Exception(
