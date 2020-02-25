@@ -111,12 +111,10 @@ def test_smbtimeout_failure_during_storefile(samba_mock: SMBConnectionMock, tmpd
         distant_file.write("Test Content Move")
 
     samba_mock.storeFile_exceptions.append(SMBTimeout)
-    with pytest.raises(Exception) as exception_info:
+    with pytest.raises(SMBTimeout):
         pyndows.move(
             connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
         )
-
-    assert exception_info.typename == "SMBTimeout"
 
 
 def test_rename_operation_failure_during_file_move(
