@@ -2,6 +2,7 @@ import os
 import os.path
 
 import pytest
+from smb.base import SMBTimeout
 
 import pyndows
 from pyndows.testing import samba_mock, SMBConnectionMock, SharedFileMock
@@ -47,7 +48,7 @@ def test_file_retrieval(samba_mock: SMBConnectionMock, tmpdir):
     samba_mock.files_to_retrieve[("TestShare", "TestFilePath")] = "Test Content"
 
     pyndows.get(
-        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
     )
     with open(os.path.join(tmpdir, "local_file")) as local_file:
         assert local_file.read() == "Test Content"
@@ -59,7 +60,7 @@ def test_operation_failure_during_file_retrieval(samba_mock: SMBConnectionMock, 
     )
     with pytest.raises(Exception) as exception_info:
         pyndows.get(
-            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
         )
     assert (
         str(exception_info.value)
@@ -75,7 +76,7 @@ def test_file_move(samba_mock: SMBConnectionMock, tmpdir):
         distant_file.write("Test Content Move")
 
     pyndows.move(
-        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+        connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
     )
 
     assert samba_mock.stored_files[("TestShare", "TestFilePath")] == "Test Content Move"
@@ -93,13 +94,27 @@ def test_store_file_operation_failure_during_file_move(
     samba_mock.storeFile_failure = True
     with pytest.raises(Exception) as exception_info:
         pyndows.move(
-            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
         )
 
     assert (
         str(exception_info.value)
         == r"Unable to write \\TestComputer\TestShareTestFilePath.tmp"
     )
+
+
+def test_smbtimeout_failure_during_storefile(samba_mock: SMBConnectionMock, tmpdir):
+    connection = pyndows.connect(
+        "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
+    )
+    with open(os.path.join(tmpdir, "local_file"), mode="w") as distant_file:
+        distant_file.write("Test Content Move")
+
+    samba_mock.storeFile_exceptions.append(SMBTimeout)
+    with pytest.raises(SMBTimeout):
+        pyndows.move(
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
+        )
 
 
 def test_rename_operation_failure_during_file_move(
@@ -114,7 +129,7 @@ def test_rename_operation_failure_during_file_move(
     samba_mock.rename_failure = True
     with pytest.raises(Exception) as exception_info:
         pyndows.move(
-            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file"),
+            connection, "TestShare", "TestFilePath", os.path.join(tmpdir, "local_file")
         )
 
     assert (
@@ -315,7 +330,7 @@ def test_get_all_folder_removes_self_directory_and_parent_directory(
     )
 
     samba_mock.stored_files.update(
-        {("TestShare/", "."): "Test Find", ("TestShare/", ".."): "Test Find",}
+        {("TestShare/", "."): "Test Find", ("TestShare/", ".."): "Test Find"}
     )
 
     shared_folder_contents = pyndows.get_folder_content(
