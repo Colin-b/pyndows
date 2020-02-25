@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `timeout` parameter for `pyndows.move`.
+- `SMBConnectionMock.storeFile_exceptions` to raise exception in case storeFile is called.
+
+### Deprecated
+- `SMBConnectionMock.storeFile_failure`, use `SMBConnectionMock.storeFile_exceptions` instead.
 
 ## [3.3.1] - 2020-02-06
 ### Fixed

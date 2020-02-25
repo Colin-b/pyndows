@@ -3,16 +3,11 @@ import re
 from typing import List, Union
 from collections import namedtuple
 import datetime
+import warnings
 
 import pytest
 
-from smb.smb_structs import (
-    OperationFailure,
-    SMB_FILE_ATTRIBUTE_DIRECTORY,
-    SMB_FILE_ATTRIBUTE_READONLY,
-    SMB_FILE_ATTRIBUTE_ARCHIVE,
-    SMB_FILE_ATTRIBUTE_INCL_NORMAL,
-)
+from smb.smb_structs import OperationFailure, SMB_FILE_ATTRIBUTE_DIRECTORY
 from smb.base import SharedFile
 
 SharedFileMock = namedtuple("SharedFileMock", ["filename", "isDirectory"])
@@ -44,6 +39,7 @@ class SMBConnectionMock:
     files_to_retrieve = {}
     echo_responses = {}
     storeFile_failure = False
+    storeFile_exceptions = []
     rename_failure = False
 
     @classmethod
@@ -59,6 +55,12 @@ class SMBConnectionMock:
             cls.echo_responses.clear()
             raise Exception(f"Echo were not requested: {echos}")
         cls.storeFile_failure = None
+        if cls.storeFile_exceptions:
+            storeFile_exceptions = list(cls.storeFile_exceptions)
+            cls.storeFile_exceptions.clear()
+            raise Exception(
+                f"storeFile exceptions were not triggered: {storeFile_exceptions}"
+            )
         cls.rename_failure = None
 
     def __init__(self, user_name, password, test_name, machine_name, *args, **kwargs):
@@ -75,9 +77,17 @@ class SMBConnectionMock:
             raise self.should_connect
         return self.should_connect
 
-    def storeFile(self, share_drive_path: str, file_path: str, file) -> int:
+    def storeFile(self, share_drive_path: str, file_path: str, file, timeout=30) -> int:
         if self.storeFile_failure:
-            raise OperationFailure("Mock for storeFile failure.", [])
+            warnings.warn(
+                "storeFile_failure attribute is deprecated and will be removed in a future version. Use storeFile_exceptions instead.",
+                DeprecationWarning,
+            )
+            self.storeFile_exceptions.append(
+                OperationFailure("Mock for storeFile failure.", [])
+            )
+        if self.storeFile_exceptions:
+            raise self.storeFile_exceptions.pop(0)
         file_content = file.read()
         try:
             # Try to store string in order to compare it easily
@@ -129,7 +139,7 @@ class SMBConnectionMock:
         raise OperationFailure("Mock for retrieveFile failure.", [])
 
     def listPath(
-        self, service_name: str, path: str, search: int = 0, pattern: str = "*",
+        self, service_name: str, path: str, search: int = 0, pattern: str = "*"
     ) -> List[SharedFile]:
         pattern = pattern.replace("*", ".*")
         pattern = pattern.replace("?", ".")
