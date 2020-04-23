@@ -95,7 +95,8 @@ class SMBConnectionMock:
         if files:
             if pattern in ["", "*"]:
                 files.extend([SharedFileMock(".", False), SharedFileMock("..", False)])
-            return files
+            # sort it for testing purposes only in order to ensure that the order is always the same
+            return sorted(set(files), key=lambda file: file.filename)
 
         raise OperationFailure(
             f"Failed to list {path} on {service_name}: Unable to open directory", []
