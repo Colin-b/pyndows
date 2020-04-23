@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2020-04-24
+### Changed
+- Mock was entirely rewritten, check documentation for details.
+- Ensure all parent folders are created before creating a file.
+- `pyndows.PyndowsException` are now raised instead of `Exception`.
+
 ## [3.4.0] - 2020-02-25
 ### Added
 - `timeout` parameter for `pyndows.move`.
@@ -38,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/Colin-b/pyndows/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/Colin-b/pyndows/compare/v3.4.0...v4.0.0
 [3.4.0]: https://github.com/Colin-b/pyndows/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/Colin-b/pyndows/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/Colin-b/pyndows/compare/v3.2.0...v3.3.0
