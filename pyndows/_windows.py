@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import logging
 import os
 from typing import Optional, List
@@ -12,6 +12,8 @@ from smb.SMBConnection import (
 )
 from smb.base import SharedFile
 from smb.smb_structs import OperationFailure
+
+from pyndows._exceptions import PyndowsException
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +34,12 @@ def connect(
     )
     try:
         if not connection.connect(ip, port):
-            raise Exception(
+            raise PyndowsException(
                 f"Impossible to connect to {machine_name} ({ip}:{port}), "
                 f"check connectivity or {domain}\\{user_name} rights."
             )
     except TimeoutError:
-        raise Exception(
+        raise PyndowsException(
             f"Impossible to connect to {machine_name} ({ip}:{port}), "
             f"check connectivity or {domain}\\{user_name} rights."
         )
@@ -57,7 +59,7 @@ def get(
         try:
             connection.retrieveFile(share_folder, file_path, file)
         except OperationFailure:
-            raise Exception(
+            raise PyndowsException(
                 f"Unable to retrieve \\\\{connection.remote_name}\\{share_folder}{file_path} file"
             )
 
@@ -78,13 +80,14 @@ def move(
         f"Moving {input_file_path} file to \\\\{connection.remote_name}\\{share_folder}{file_path}..."
     )
 
+    _create_folders(connection, share_folder, os.path.dirname(file_path))
     try:
         with open(input_file_path, "rb") as input_file:
             connection.storeFile(
                 share_folder, f"{file_path}{temp_file_suffix}", input_file, timeout
             )
     except OperationFailure:
-        raise Exception(
+        raise PyndowsException(
             f"Unable to write \\\\{connection.remote_name}\\{share_folder}{file_path}{temp_file_suffix}"
         )
 
@@ -92,7 +95,7 @@ def move(
         try:
             connection.rename(share_folder, f"{file_path}{temp_file_suffix}", file_path)
         except OperationFailure:
-            raise Exception(
+            raise PyndowsException(
                 f"Unable to rename temp file into \\\\{connection.remote_name}\\{share_folder}{file_path}"
             )
 
@@ -102,6 +105,29 @@ def move(
     logger.info(
         f"{input_file_path} file moved within \\\\{connection.remote_name}\\{share_folder}{file_path}."
     )
+
+
+def _create_folders(connection: SMBConnection, share_folder: str, folder_path: str):
+    if _create_folder(connection, share_folder, folder_path):
+        return
+
+    # Try to create parent folders
+    _create_folders(connection, share_folder, os.path.dirname(folder_path))
+    # Try to create this folder once more now that parent is supposed to exists
+    _create_folder(connection, share_folder, folder_path)
+
+
+def _create_folder(
+    connection: SMBConnection, share_folder: str, folder_path: str
+) -> bool:
+    try:
+        if folder_path not in ["", "/"]:
+            connection.createDirectory(share_folder, folder_path)
+        return True
+    except OperationFailure:
+        # Folder already exists
+        # or another issue occurred and then it should be silent as the move operation will fail anyway
+        return False
 
 
 def rename(
@@ -126,7 +152,7 @@ def _rename(
         connection.rename(share_folder, old_file_path, new_file_path)
         logger.info("File renamed...")
     except OperationFailure:
-        raise Exception(
+        raise PyndowsException(
             f"Unable to rename \\\\{connection.remote_name}\\{share_folder}{old_file_path} "
             f"into \\\\{connection.remote_name}\\{share_folder}{new_file_path}"
         )
@@ -214,7 +240,7 @@ def check(computer_name: str, connection: SMBConnection) -> (str, dict):
                     "componentType": connection.remote_name,
                     "observedValue": response.decode(),
                     "status": "pass",
-                    "time": datetime.utcnow().isoformat(),
+                    "time": datetime.datetime.utcnow().isoformat(),
                 }
             },
         )
@@ -225,7 +251,7 @@ def check(computer_name: str, connection: SMBConnection) -> (str, dict):
                 f"{computer_name}:echo": {
                     "componentType": connection.remote_name,
                     "status": "fail",
-                    "time": datetime.utcnow().isoformat(),
+                    "time": datetime.datetime.utcnow().isoformat(),
                     "output": str(e),
                 }
             },

@@ -1,3 +1,4 @@
+from pyndows._exceptions import PyndowsException
 from pyndows._windows import (
     connect,
     get,

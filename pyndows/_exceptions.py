@@ -1,0 +1,2 @@
+class PyndowsException(Exception):
+    pass

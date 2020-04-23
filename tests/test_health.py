@@ -1,27 +1,16 @@
 import os
 import os.path
 
+from smb.smb_structs import OperationFailure
+
 import pyndows
-from pyndows.testing import samba_mock, SMBConnectionMock
+from pyndows.testing import samba_mock, SMBConnectionMock, mock_pyndows_health_datetime
 
 
-class DateTimeMock:
-    @staticmethod
-    def utcnow():
-        class UTCDateTimeMock:
-            @staticmethod
-            def isoformat():
-                return "2018-10-11T15:05:05.663979"
-
-        return UTCDateTimeMock
-
-
-def test_pass_health_check(samba_mock: SMBConnectionMock, monkeypatch):
-    monkeypatch.setattr(pyndows._windows, "datetime", DateTimeMock)
+def test_pass_health_check(samba_mock: SMBConnectionMock, mock_pyndows_health_datetime):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
-    samba_mock.echo_responses[b""] = b""
     assert pyndows.check("tests", connection) == (
         "pass",
         {
@@ -35,11 +24,15 @@ def test_pass_health_check(samba_mock: SMBConnectionMock, monkeypatch):
     )
 
 
-def test_fail_health_check(samba_mock: SMBConnectionMock, monkeypatch):
-    monkeypatch.setattr(pyndows._windows, "datetime", DateTimeMock)
+def test_fail_health_check(samba_mock: SMBConnectionMock, mock_pyndows_health_datetime):
     connection = pyndows.connect(
         "TestComputer", "127.0.0.1", 80, "TestDomain", "TestUser", "TestPassword"
     )
+
+    def raise_exception(*args):
+        raise OperationFailure("Mock for echo failure.", [])
+
+    samba_mock.add_callback("echo", raise_exception)
     assert pyndows.check("tests", connection) == (
         "fail",
         {
