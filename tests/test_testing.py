@@ -44,12 +44,18 @@ def test_async_retrieval(samba_mock: SMBConnectionMock, tmpdir):
     def add_with_delay(delay: int):
         time.sleep(delay)
         pyndows.move(
-            connection, "TestShare", "/TestFilePath", os.path.join(tmpdir, "local_file")
+            connection,
+            "TestShare",
+            "/TestFilePath",
+            os.path.join(tmpdir, "local_file"),
+            write_to_new_folder_after=0,
         )
 
-    threading.Thread(target=add_with_delay, args=(2,)).start()
+    thread = threading.Thread(target=add_with_delay, args=(2,))
+    thread.start()
 
     retrieved_file = try_get(samba_mock.path("TestShare", "/TestFilePath"), timeout=4)
+    thread.join()
     assert gzip.decompress(retrieved_file.read_bytes()) == b"Test Content Move"
 
 
@@ -63,13 +69,19 @@ def test_async_retrieval_timeout(samba_mock: SMBConnectionMock, tmpdir):
     def add_with_delay(delay: int):
         time.sleep(delay)
         pyndows.move(
-            connection, "TestShare", "/TestFilePath", os.path.join(tmpdir, "local_file")
+            connection,
+            "TestShare",
+            "/TestFilePath",
+            os.path.join(tmpdir, "local_file"),
+            write_to_new_folder_after=0,
         )
 
-    threading.Thread(target=add_with_delay, args=(2,)).start()
+    thread = threading.Thread(target=add_with_delay, args=(2,))
+    thread.start()
 
     with pytest.raises(TimeoutError) as exception_info:
         try_get(samba_mock.path("TestShare", "/TestFilePath"))
+    thread.join()
     assert (
         str(exception_info.value) == "TestFilePath could not be found within 1 seconds."
     )

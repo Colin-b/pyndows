@@ -1,3 +1,4 @@
+import shutil
 from typing import List
 from collections import namedtuple
 import datetime
@@ -119,6 +120,12 @@ class SMBConnectionMock:
     def add_callback(cls, method_name: str, callback: callable):
         cls.monkeypatch.setattr(cls, method_name, callback)
 
+    @classmethod
+    def cleanup(cls):
+        mock_path = pathlib.Path(cls.tmpdir, "pyndows_samba_mock")
+        if mock_path.exists():
+            shutil.rmtree(mock_path)
+
 
 @pytest.fixture
 def samba_mock(monkeypatch, tmpdir) -> SMBConnectionMock:
@@ -133,6 +140,8 @@ def samba_mock(monkeypatch, tmpdir) -> SMBConnectionMock:
     monkeypatch.setattr(pyndows._windows, "SMBConnection", SMBConnectionMock)
 
     yield SMBConnectionMock
+
+    SMBConnectionMock.cleanup()
 
 
 _date_time_for_tests = datetime.datetime(2018, 10, 11, 15, 5, 5, 663979)
