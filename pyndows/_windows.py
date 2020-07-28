@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 from typing import Optional, List
+import time
 
 from smb.SMBConnection import (
     SMBConnection,
@@ -75,12 +76,26 @@ def move(
     input_file_path: str,
     temp_file_suffix=".tmp",
     timeout=30,
+    write_to_new_folder_after=1,
 ):
+    """
+    Move a local file to a Windows location.
+
+    :param connection: Samba connection as returned by connect function.
+    :param share_folder: Shared folder name.
+    :param file_path: Expected full path to the file that should be created. Folders will be created if needed.
+    :param input_file_path: Path to the file to move.
+    :param temp_file_suffix: Suffix of the file while being copied. Default to ".tmp".
+    :param timeout: Maximum amount of seconds to write the file. Default to 30 seconds.
+    :param write_to_new_folder_after: Number of seconds to wait before writing file if folder needed to be created.
+    Useful as Microsoft does not seems to release folder right away. Default to 1 second.
+    """
     logger.info(
         f"Moving {input_file_path} file to \\\\{connection.remote_name}\\{share_folder}{file_path}..."
     )
 
-    _create_folders(connection, share_folder, os.path.dirname(file_path))
+    if _create_folders(connection, share_folder, os.path.dirname(file_path)):
+        time.sleep(write_to_new_folder_after)
     try:
         with open(input_file_path, "rb") as input_file:
             connection.storeFile(
@@ -107,14 +122,16 @@ def move(
     )
 
 
-def _create_folders(connection: SMBConnection, share_folder: str, folder_path: str):
+def _create_folders(
+    connection: SMBConnection, share_folder: str, folder_path: str
+) -> bool:
     if _create_folder(connection, share_folder, folder_path):
-        return
+        return True
 
     # Try to create parent folders
     _create_folders(connection, share_folder, os.path.dirname(folder_path))
     # Try to create this folder once more now that parent is supposed to exists
-    _create_folder(connection, share_folder, folder_path)
+    return _create_folder(connection, share_folder, folder_path)
 
 
 def _create_folder(

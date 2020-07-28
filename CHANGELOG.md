@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2020-07-28
+### Added
+- `write_to_new_folder_after` parameter to `pyndows.move` allowing to wait (or not), for a few seconds before writing file after a folder creation.
+
+### Changed
+- `pyndows.move` now waits 1 second in case of a folder creation before writing the file.
+
+### Fixed
+- Avoid warning in test cases on Windows when pytest could not remove the content of temporary folders.
+
 ## [4.0.0] - 2020-04-24
 ### Changed
 - Mock was entirely rewritten, check documentation for details.
@@ -44,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/Colin-b/pyndows/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Colin-b/pyndows/compare/v3.4.0...v4.0.0
 [3.4.0]: https://github.com/Colin-b/pyndows/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/Colin-b/pyndows/compare/v3.3.0...v3.3.1
