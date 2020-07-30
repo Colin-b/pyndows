@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.0] - 2020-07-30
+### Changed
+- Folder creation is now performed using a temporary folder name to avoid issues with folder not being available for file system listeners right away.
+
 ## [4.1.0] - 2020-07-28
 ### Added
 - `write_to_new_folder_after` parameter to `pyndows.move` allowing to wait (or not), for a few seconds before writing file after a folder creation.
@@ -54,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.1.0...HEAD
+[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.2.0...HEAD
+[4.2.0]: https://github.com/Colin-b/pyndows/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Colin-b/pyndows/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Colin-b/pyndows/compare/v3.4.0...v4.0.0
 [3.4.0]: https://github.com/Colin-b/pyndows/compare/v3.3.1...v3.4.0

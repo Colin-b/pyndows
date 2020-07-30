@@ -137,13 +137,17 @@ def _create_folders(
 def _create_folder(
     connection: SMBConnection, share_folder: str, folder_path: str
 ) -> bool:
+    # Avoid trying to create an already existing folder
+    if folder_path in ["", "/"] or get_file_desc(connection, share_folder, folder_path):
+        return True
+
     try:
-        if folder_path not in ["", "/"]:
-            connection.createDirectory(share_folder, folder_path)
+        # Create a temporary folder, then rename it for instant availability (Windows FS listeners for instance)
+        connection.createDirectory(share_folder, f"{folder_path}temp")
+        connection.rename(share_folder, f"{folder_path}temp", folder_path)
         return True
     except OperationFailure:
-        # Folder already exists
-        # or another issue occurred and then it should be silent as the move operation will fail anyway
+        # Silent failure as subsequent action will certainly fail anyway
         return False
 
 
