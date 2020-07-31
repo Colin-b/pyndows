@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [4.2.0] - 2020-07-30
+## [4.2.0] - 2020-07-31
 ### Changed
 - Folder creation is now performed using a temporary folder name to avoid issues with folder not being available for file system listeners right away.
 
