@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.1] - 2020-08-04
+### Fixed
+- `SMBConnectionMock.listPath` now lists directories by default (as in `pysmb`).
+
 ## [4.2.0] - 2020-07-31
 ### Changed
 - Folder creation is now performed using a temporary folder name to avoid issues with folder not being available for file system listeners right away.
@@ -58,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.2.0...HEAD
+[Unreleased]: https://github.com/Colin-b/pyndows/compare/v4.2.1...HEAD
+[4.2.1]: https://github.com/Colin-b/pyndows/compare/v4.2.0...v4.2.1
 [4.2.0]: https://github.com/Colin-b/pyndows/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Colin-b/pyndows/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Colin-b/pyndows/compare/v3.4.0...v4.0.0
