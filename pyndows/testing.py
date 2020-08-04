@@ -85,7 +85,11 @@ class SMBConnectionMock:
         )
 
     def listPath(
-        self, service_name: str, path: str, search: int = 0, pattern: str = "*"
+        self,
+        service_name: str,
+        path: str,
+        search: int = SMB_FILE_ATTRIBUTE_DIRECTORY,
+        pattern: str = "*",
     ) -> List[SharedFile]:
         files = [
             SharedFileMock(file.name, file.is_dir())
